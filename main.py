@@ -1,19 +1,25 @@
 import time
-import random
 
 # define base variables 
 current_temp = None
 is_running = True
+is_alarm_active = False
 rooms = []
+security_sensors = []
 
 # init default rooms
 rooms.append(["Living Room", False, 0])
 rooms.append(["Bedroom", False, 0])
 rooms.append(["Kitchen", False, 0])
 
+# init default sensors
+security_sensors.append(["Front Door","door", False])
+security_sensors.append(["Back Door","door", False])
+security_sensors.append(["Living Room Window","window", False])
+
 # code main loop 
 while is_running:
-    print("\n==============================")
+    print("==============================")
     print("   SMART HOME CONTROLLER CLI  ")
     print("==============================")
     print("1. Temperature Control")
@@ -122,7 +128,7 @@ while is_running:
                 if room_name == "":
                     print("Room name cannot be empty!")
                 else:
-                    # check if room name already exist
+                    # check if room name already exist and handle it
                     room_exists = False
                     for i in range(len(rooms)):
                         if rooms[i][0] == room_name:
@@ -181,6 +187,10 @@ while is_running:
                         light_on = rooms[i][1]
                         brightness = rooms[i][2]
                         status = f"ON ({brightness}%)" if light_on else "OFF"
+                        if light_on: 
+                            status = f"ON ({brightness} %)"
+                        else:
+                            status = "OFF"
                         print(f"{i + 1}. {room_name}: {status}")
                     print("-" * 26)
                     
@@ -210,9 +220,9 @@ while is_running:
             elif light_choice == 5:
                 # adjust room brightness
                 if len(rooms) == 0:
-                    print("\nNo rooms added yet!")
+                    print("\nno rooms added yet!")
                 else:
-                    print("\n ==== ROOMS IN YOUR HOME ==== ")
+                    print("\n ==== ROOMS ==== ")
                     
                     # display rooms
                     for i in range(len(rooms)):
@@ -223,7 +233,7 @@ while is_running:
                         print(f"{i + 1}. {room_name}: {status}")
                     print("-" * 26)
                     
-                    room_name = input("\nEnter room name: ").strip()
+                    room_name = input("\nenter room name: ").strip()
                     
                     # find room and adjust brightnes
                     is_room_found = False
@@ -232,11 +242,11 @@ while is_running:
                             is_room_found = True
                             
                             if not rooms[i][1]:
-                                print(f"Light in '{room_name}' is OFF. Turn it on first!")
+                                print(f"Light in '{room_name}' is OFF Turn it on first")
                             else:
                                 try:
-                                    brightness = int(input("Enter brightness level (0-100): "))
-                                    if 0 <= brightness <= 100:
+                                    brightness = int(input("Enter brightness level (0- 100): "))
+                                    if 0 <= brightness and brightness <= 100:
                                         rooms[i][2] = brightness
                                         if brightness == 0:
                                             rooms[i][1] = False
@@ -285,7 +295,225 @@ while is_running:
 
     # security system
     elif choice == 3:
-        print("\nSecurity System - Coming soon!")
+        # security system 
+        is_security_running = True
+        while is_security_running:
+            print("==== SECURITY SYSTEM ====")
+            print("1. View sensors status")
+            print("2. Add sensor")
+            print("3. Remove sensor")
+            print("4. Toggle door/window")
+            print("5. Activate/deactivate alarm")
+            print("6. Back to main menu")
+            print("=========================")
+
+            # error handling
+            try:
+                security_choice = int(input("Select option (1-6): "))
+            except ValueError:
+                print("Invalid input! Please enter a number.")
+                continue
+
+            # check user choice
+            if security_choice == 1:
+                # view sensors status
+                if len(security_sensors) == 0:
+                    print("\nNo sensors aded yet!")
+                else:
+                    print("\n--- SECURITY SENSORS ---")
+
+                    # iterate through sensors and display status
+                    for i in range(len(security_sensors)):
+                        location = security_sensors[i][0]
+                        sensor_type = security_sensors[i][1]
+                        status = security_sensors[i][2]
+                        
+                        if sensor_type == "door":
+                            if status:
+                                status_text = "LOCKED"
+                            else:
+                                status_text = "UNLOCKED"
+                        elif sensor_type == "window":
+                            if status:
+                                status_text = "CLOSED"
+                            else:
+                                status_text = "OPEN"
+                        else:
+                            status_text = str(status)
+                        
+                        print(f"{i + 1}. {location} ({sensor_type}): {status_text}")
+                    print("-" * 24)
+                input("\nPress Enter to continue...")
+
+            # add sensor
+            elif security_choice == 2:
+                location = input("\nEnter sensor location: ").strip()
+                
+                # validate location
+                if location == "":
+                    print("Location cannot be empty!")
+                else:
+                    print("\nSensor types:")
+                    print("1. Door")
+                    print("2. Window")
+                    
+                    sensor_type_choice = input("Select sensor type (1-2): ").strip()
+                    
+                    # check sensor type
+                    if sensor_type_choice == "1":
+                        sensor_type = "door"
+                        default_status = True
+                    elif sensor_type_choice == "2":
+                        sensor_type = "window"
+                        default_status = True
+                    else:
+                        print("Invalid sensor type!")
+                        input("Press Enter to continue...")
+                        continue
+                    
+                    # add sensor to list
+                    security_sensors.append([location, sensor_type, default_status])
+                    print(f"Sensor '{location}' ({sensor_type}) added successfully!")
+                input("Press Enter to continue...")
+            
+            # remove sensor
+            elif security_choice == 3:
+
+                #display sensors
+                if len(security_sensors) == 0:
+                    print("\nNo sensors added yet!")
+                else:
+                    print("\n==== SECURITY SENSORS ====")
+                    for i in range(len(security_sensors)):
+                        location = security_sensors[i][0]
+                        sensor_type = security_sensors[i][1]
+                        print(f"{i + 1}. {location} ({sensor_type})")
+                    print("-" * 24)
+                    
+                    location = input("\nEnter sensor location to remove: ").strip()
+                    
+                    sensor_found = False
+
+                    # find and remove sensor
+                    for i in range(len(security_sensors)):
+                        if security_sensors[i][0] == location:
+                            security_sensors.pop(i)
+                            sensor_found = True
+                            print(f"Sensor '{location}' removed successfully!")
+                            break
+                    
+                    if not sensor_found:
+                        print(f"Sensor '{location}' not found!")
+                input("Press Enter to continue...")
+
+                # toggle door or window lock
+            elif security_choice == 4:
+
+
+                if len(security_sensors) == 0:
+                    print("\nNo sensors added yet!")
+                else:
+                    door_window_list = []
+                    print("\n--- DOORS & WINDOWS ---")
+                    counter = 1
+
+                    # display doors and windows
+                    for i in range(len(security_sensors)):
+                        if security_sensors[i][1] == "door" or security_sensors[i][1] == "window":
+                            door_window_list.append(i)
+                            location = security_sensors[i][0]
+                            sensor_type = security_sensors[i][1]
+                            status = security_sensors[i][2]
+                            if status and sensor_type == "door":
+                                status_text = "LOCKED"
+                            elif not status and sensor_type == "door":
+                                status_text = "UNLOCKED"
+                            elif status:
+                                status_text = "CLOSED"
+                            else:
+                                status_text = "OPEN"
+                            
+                            print(f"{counter}. {location} ({sensor_type}): {status_text}")
+                            counter += 1
+                    print("-" * 23)
+                    
+                    if len(door_window_list) == 0:
+                        print("No doors or windows founda!")
+                    else:
+                        location = input("\nEnter location to toggle: ").strip()
+                        
+                        sensor_found = False
+
+                        # find and toggle door/window status
+                        for i in door_window_list:
+                            if security_sensors[i][0] == location:
+                                sensor_found = True
+                                security_sensors[i][2] = not security_sensors[i][2]
+                                
+                                if security_sensors[i][1] == "door":
+                                    if security_sensors[i][2]:
+                                        status_text = "LOCKED"
+                                    else:
+                                        status_text = "UNLOCKED"
+                                else:
+                                    if security_sensors[i][2]:
+                                        status_text = "CLOSED"
+                                    else:
+                                        status_text = "OPEN"
+                                
+                                print(f"{location} is now {status_text}")
+                                break
+                        
+                        if not sensor_found:
+                            print(f"Door/window '{location}'not found!")
+                input("Press enter to continue...")
+
+            # activate/deactivate alarm
+            elif security_choice == 5:
+                if is_alarm_active:
+
+                    # deactivate alarm
+                    confirm = input("\n Deactivate alarm? (Y/N): ").upper()
+                    if confirm == "Y":
+                        is_alarm_active = False
+                        print("Alarm deactivate")
+                    else:
+                        print("Alarm remains active")
+                else:
+                    # check if all doors and windows are locked/closed
+                    all_secure = True
+                    unsecure_list = []
+                    
+                    # find unsecure doors/windows
+                    for i in range(len(security_sensors)):
+                        if security_sensors[i][1] == "door" or security_sensors[i][1] == "window":
+                            if not security_sensors[i][2]:
+                                all_secure = False
+                                unsecure_list.append(security_sensors[i][0])
+                    
+                    # handle unsecure doors/windows
+                    if not all_secure:
+                        print("\nCannot activate alarm! The following are not secure:")
+                        for location in unsecure_list:
+                            print(f"  - {location}")
+                        print("Please lock/closed all doors and windows first.")
+                    else:
+                        confirm = input("\Activate alarm? (Y/N): ").upper()
+                        if confirm == "Y":
+                            is_alarm_active = True
+                            print("Alarm activated")
+                        else:
+                            print("Alarm remains deactivateED")
+                input("Press Enter to continue...")
+
+            # back to main menu
+            elif security_choice == 6:
+                is_security_running = False
+            else:
+                print("Invalid option!")
+                input("Press Enter to continue...")
+            
+
         input("Press Enter to continue...")
 
     elif choice == 4:
@@ -308,6 +536,24 @@ while is_running:
             print(f"\nTotal: {lights_on_count}/{len(rooms)} lights ON")
         else:
             print("  No rooms configured")
+
+        print("\n--- Security ---")
+        if is_alarm_active:
+            print("Warning: Alarm is currently active!")
+        else:
+            print("Alarm is not active.")
+        
+        # count secure vs unsecure sensors
+        secure_count = 0
+        total_sensors = 0
+        for i in range(len(security_sensors)):
+            if security_sensors[i][1] == "door" or security_sensors[i][1] == "window":
+                total_sensors += 1
+                if security_sensors[i][2]:
+                    secure_count += 1
+        
+        if total_sensors > 0:
+            print(f"sensors: {secure_count}/{total_sensors} secured")
         print("========================")
         input("\nPress Enter to continue...")
 
