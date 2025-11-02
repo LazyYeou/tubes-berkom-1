@@ -48,30 +48,34 @@ while is_running:
 
         # check if user wants to change temperature
         if change_temp == "Y":
-            target_temp = float(input("Enter the target temperature (°C): "))
+            target_temp = float(input("Enter the target temperature (10 - 40) (°C): "))
 
-            if current_temp == target_temp:
-                print(f"Target and current temperature is already the same. System now idle.")
+            # validate target temperature
+            if target_temp < 10 or target_temp > 40:
+                print("Target temperature is out of range and must be between 10°C and 40°C.")
             else:
-                mode = "HEATING" if current_temp < target_temp else "COOLING"
-                print(f"\nSystem mode: {mode}")
-                print("Adjusting temperature...")
+                if current_temp == target_temp:
+                    print(f"Target and current temperature is already the same. System now idle.")
+                else:
+                    mode = "HEATING" if current_temp < target_temp else "COOLING"
+                    print(f"\nSystem mode: {mode}")
+                    print("Adjusting temperature...")
 
-                # adjust temperature loop
-                while abs(current_temp - target_temp) > 1:
-                    if current_temp < target_temp:
-                        current_temp += 1
-                    elif current_temp > target_temp:
-                        current_temp -= 1
+                    # adjust temperature loop
+                    while abs(current_temp - target_temp) > 1:
+                        if current_temp < target_temp:
+                            current_temp += 1
+                        elif current_temp > target_temp:
+                            current_temp -= 1
 
-                    # round temperature value
-                    current_temp = round(current_temp, 1)
-                    print(f"Current temperature: {current_temp}°C")
+                        # round temperature value
+                        current_temp = round(current_temp, 1)
+                        print(f"Current temperature: {current_temp}°C")
 
-                    # give time delay
-                    time.sleep(0.5)
+                        # give time delay
+                        time.sleep(0.5)
 
-                print(f"\nTarget temperature of {target_temp}°C reached. System is now stable.")
+                    print(f"\nTarget temperature of {target_temp}°C reached. System is now stable.")
         else:
             print("No changes made to the temperature.")
         
@@ -101,8 +105,8 @@ while is_running:
                 continue
             
             # check light control user choice
+            # check all rooms
             if light_choice == 1:
-                # check all rooms
                 if len(rooms) == 0:
                     print("\nNo rooms added yet!")
                 else:
@@ -121,8 +125,8 @@ while is_running:
                     print("-" * 26)
                 input("\nPress Enter to continue...")
                 
+            # add room
             elif light_choice == 2:
-                # add room
                 room_name = input("\nEnter room name: ").strip()
                 
                 if room_name == "":
@@ -142,8 +146,8 @@ while is_running:
                         print(f"Added room '{room_name}'!")
                 input("Press Enter to continue...")
                 
+            # remove room
             elif light_choice == 3:
-                # remove room
                 if len(rooms) == 0:
                     print("\nNo rooms added yet")
                 else:
@@ -174,8 +178,8 @@ while is_running:
                         print(f"Room '{room_name}' not found!")
                 input("Press Enter to continue...")
                 
+            # toogle rooms light
             elif light_choice == 4:
-                # toogle rooms light
                 if len(rooms) == 0:
                     print("\nNo rooms added yet!")
 
@@ -217,8 +221,8 @@ while is_running:
                         print(f"Room '{room_name}' not found!")
                 input("Press Enter to continue...")
                 
+            # adjust room brightness
             elif light_choice == 5:
-                # adjust room brightness
                 if len(rooms) == 0:
                     print("\nno rooms added yet!")
                 else:
@@ -246,6 +250,8 @@ while is_running:
                             else:
                                 try:
                                     brightness = int(input("Enter brightness level (0- 100): "))
+
+                                    # validate brightness value
                                     if 0 <= brightness and brightness <= 100:
                                         rooms[i][2] = brightness
                                         if brightness == 0:
@@ -254,7 +260,7 @@ while is_running:
                                         else:
                                             print(f"Brightness in '{room_name}' set to {brightness}%")
                                     else:
-                                        print("Brightness must be between 0 and 100!")
+                                        print("Brightness input is out of range and must be between 0 and 100!")
                                 except ValueError:
                                     print("Invalid brightness value!")
                             break
