@@ -26,8 +26,8 @@ while is_running:
     print("2. Light Control")
     print("3. Security System")
     print("4. Home Status")
-    print("5. Exit")
-    print("6. Sensor Inputs")
+    print("5. Sensor Inputs")
+    print("6. Exit")
     print("==============================")
 
     # error handling
@@ -186,7 +186,7 @@ while is_running:
 
                 # display rooms
                 else:
-                    print("\n ==== ROOMS IN YOUR HOME ==== ")
+                    print("\n ==== ROOMS ==== ")
                     for i in range(len(rooms)):
                         room_name = rooms[i][0]
                         light_on = rooms[i][1]
@@ -523,7 +523,7 @@ while is_running:
 
         input("Press Enter to continue...")
 
-    elif choice == 6:
+    elif choice == 5:
         print("\n====== SENSOR INPUTS ======")
         try:
             temp_input = input("Enter current room temperature (°C) (leave blank to keep current): ").strip()
@@ -631,7 +631,7 @@ while is_running:
                     print(f"  {rooms[i][0]}: OFF")
             print(f"\nTotal: {lights_on_count}/{len(rooms)} lights ON")
         else:
-            print("  No rooms configured")
+            print("No rooms configured")
 
         print("\n--- Security ---")
         if is_alarm_active:
@@ -654,7 +654,7 @@ while is_running:
         input("\nPress Enter to continue...")
 
     # exit program
-    elif choice == 5:
+    elif choice == 6:
         print("Shutting down the Smart Home Controller...")
         is_running = False
 
