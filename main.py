@@ -27,13 +27,14 @@ while is_running:
     print("3. Security System")
     print("4. Home Status")
     print("5. Exit")
+    print("6. Sensor Inputs")
     print("==============================")
 
     # error handling
     try:
-        choice = int(input("Select an option (1-5): "))
+        choice = int(input("Select an option (1-6): "))
     except ValueError:
-        print("Invalid input! Please enter a number between 1 and 5.")
+        print("Invalid input! Please enter a number between 1 and 6.")
         continue
 
     # check conditions
@@ -62,7 +63,7 @@ while is_running:
                     print("Adjusting temperature...")
 
                     # adjust temperature loop
-                    while abs(current_temp - target_temp) > 1:
+                    while abs(current_temp - target_temp) > 0:
                         if current_temp < target_temp:
                             current_temp += 1
                         elif current_temp > target_temp:
@@ -407,7 +408,7 @@ while is_running:
                             sensor_found = True
                             print(f"Sensor '{location}' removed successfully!")
                             break
-                    
+                   
                     if not sensor_found:
                         print(f"Sensor '{location}' not found!")
                 input("Press Enter to continue...")
@@ -522,6 +523,95 @@ while is_running:
 
         input("Press Enter to continue...")
 
+    elif choice == 6:
+        print("\n====== SENSOR INPUTS ======")
+        try:
+            temp_input = input("Enter current room temperature (°C) (leave blank to keep current): ").strip()
+            if temp_input != "":
+                current_temp = float(temp_input)
+        except ValueError:
+            print("Invalid temperature input! Keeping previous temperature value.")
+        if len(rooms) > 0:
+            for i in range(len(rooms)):
+                room_name = rooms[i][0]
+                try:
+                    ambient_input = input(f"Ambient sensor (0-100) for {room_name}: ").strip()
+                    ambient = int(ambient_input)
+                    if ambient < 0:
+                        ambient = 0
+                    if ambient > 100:
+                        ambient = 100
+                except ValueError:
+                    ambient = 100
+                person = input(f"Sensor detect person in {room_name}? (Y/N): ").upper().strip()
+                if person == "Y":
+                    rooms[i][1] = True
+                    brightness = 100 - ambient
+                    if brightness < 0:
+                        brightness = 0
+                    if brightness > 100:
+                        brightness = 100
+                    if brightness == 0:
+                        brightness = 30
+                    rooms[i][2] = brightness
+                else:
+                    rooms[i][1] = False
+                    rooms[i][2] = 0
+        else:
+            print("\nNo rooms added yet!")
+        if len(security_sensors) > 0:
+            danger_flag = False
+            for i in range(len(security_sensors)):
+                location = security_sensors[i][0]
+                cam = input(f"Camera detect danger at {location}? (Y/N): ").upper().strip()
+                if cam == "Y":
+                    is_alarm_active = True
+                    danger_flag = True
+                    print(f"Danger detected at {location}!")
+            if not danger_flag:
+                print("No danger detected by cameras.")
+        else:
+            print("\nNo sensors added yet!")
+
+        print("\n====== HOME STATUS ======")
+        if current_temp:
+            print(f"Temperatue: {current_temp}°C")
+        else:
+            print("Temperature: Not set")
+
+        print("\n--- Lighting ---")
+        if len(rooms) > 0:
+            lights_on_count = 0
+            for i in range(len(rooms)):
+                if rooms[i][1]:
+                    lights_on_count += 1
+                    print(f"  {rooms[i][0]}: ON ({rooms[i][2]}%)")
+                else:
+                    print(f"  {rooms[i][0]}: OFF")
+            print(f"\nTotal: {lights_on_count}/{len(rooms)} lights ON")
+        else:
+            print("  No rooms configured")
+
+        print("\n--- Security ---")
+        if is_alarm_active:
+            print("Warning: Alarm is currently active!")
+        else:
+            print("Alarm is not active.")
+        
+        # count secure vs unsecure sensors
+        secure_count = 0
+        total_sensors = 0
+        for i in range(len(security_sensors)):
+            if security_sensors[i][1] == "door" or security_sensors[i][1] == "window":
+                total_sensors += 1
+                if security_sensors[i][2]:
+                    secure_count += 1
+        
+        if total_sensors > 0:
+            print(f"sensors: {secure_count}/{total_sensors} secured")
+        print("========================")
+        input("\nPress Enter to continue...")
+
     elif choice == 4:
         # home status
         print("\n====== HOME STATUS ======")
@@ -530,7 +620,7 @@ while is_running:
         else:
             print("Temperature: Not set")
 
-        print("\n--- Lighnting ---")
+        print("\n--- Lighting ---")
         if len(rooms) > 0:
             lights_on_count = 0
             for i in range(len(rooms)):
